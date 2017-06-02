@@ -2,6 +2,8 @@ import sys
 import csv
 import json
 import urllib.request
+from optparse import OptionParser
+
 
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
 
@@ -25,16 +27,22 @@ def get_page(url, page, collection_handle=None):
 
 def get_page_collections(url):
     full_url = url + '/collections.json'
-    req = urllib.request.Request(
-        full_url,
-        data=None,
-        headers={
-            'User-Agent': USER_AGENT
-        }
-    )
-    data = urllib.request.urlopen(req).read()
-    cols = json.loads(data.decode())['collections']
-    return cols
+    page = 1
+    while True:
+        req = urllib.request.Request(
+            full_url + '?page={}'.format(page),
+            data=None,
+            headers={
+                'User-Agent': USER_AGENT
+            }
+        )
+        data = urllib.request.urlopen(req).read()
+        cols = json.loads(data.decode())['collections']
+        if not cols:
+            break
+        for col in cols:
+            yield col
+        page += 1
 
 
 def check_shopify(url):
@@ -103,7 +111,7 @@ def extract_products_collection(url, col):
         products = get_page(url, page, col)
 
 
-def extract_products(url, path):
+def extract_products(url, path, collections=None):
     with open(path, 'w') as f:
         writer = csv.writer(f)
         writer.writerow(['Code', 'Collection', 'Category',
@@ -111,6 +119,8 @@ def extract_products(url, path):
                          'Price', 'In Stock', 'URL', 'Image URL'])
         seen_variants = set()
         for col in get_page_collections(url):
+            if collections and col['handle'] not in collections:
+                continue
             handle = col['handle']
             title = col['title']
             for product in extract_products_collection(url, handle):
@@ -128,6 +138,19 @@ def extract_products(url, path):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        extract_products(fix_url(sys.argv[1]), 'products.csv')
-        sys.exit(0)
+    parser = OptionParser()
+    parser.add_option("--list-collections", dest="list_collections",
+                      action="store_true",
+                      help="List collections in the site")
+    parser.add_option("--collections", "-c", dest="collections",
+                      default="",
+                      help="Download products only from the given collections (comma separated)")
+    (options, args) = parser.parse_args()
+    if len(args) > 0:
+        url = fix_url(args[0])
+        if options.list_collections:
+            for col in get_page_collections(url):
+                print(col['handle'])
+        else:
+            print(options.collections)
+            extract_products(url, 'products.csv', options.collections.split(','))

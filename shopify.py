@@ -1,7 +1,9 @@
 import sys
 import csv
 import json
+import time
 import urllib.request
+from urllib.error import HTTPError
 from optparse import OptionParser
 
 
@@ -20,7 +22,15 @@ def get_page(url, page, collection_handle=None):
             'User-Agent': USER_AGENT
         }
     )
-    data = urllib.request.urlopen(req).read()
+    while True:
+        try:
+            data = urllib.request.urlopen(req).read()
+            break
+        except HTTPError:
+            print('Blocked! Sleeping...')
+            time.sleep(180)
+            print('Retrying')
+        
     products = json.loads(data.decode())['products']
     return products
 
@@ -36,7 +46,15 @@ def get_page_collections(url):
                 'User-Agent': USER_AGENT
             }
         )
-        data = urllib.request.urlopen(req).read()
+        while True:
+            try:
+                data = urllib.request.urlopen(req).read()
+                break
+            except HTTPError:
+                print('Blocked! Sleeping...')
+                time.sleep(180)
+                print('Retrying')
+
         cols = json.loads(data.decode())['collections']
         if not cols:
             break
@@ -100,7 +118,7 @@ def extract_products_collection(url, col):
 
                 row = {'sku': sku, 'product_type': product_type,
                        'title': title, 'option_value': option_value,
-                       'price': price, 'stock': stock,
+                       'price': price, 'stock': stock, 'body': str(product['body_html']),
                        'variant_id': product_handle + str(variant['id']),
                        'product_url': product_url, 'image_src': image_src}
                 for k in row:
@@ -116,7 +134,7 @@ def extract_products(url, path, collections=None):
         writer = csv.writer(f)
         writer.writerow(['Code', 'Collection', 'Category',
                          'Name', 'Variant Name',
-                         'Price', 'In Stock', 'URL', 'Image URL'])
+                         'Price', 'In Stock', 'URL', 'Image URL', 'Body'])
         seen_variants = set()
         for col in get_page_collections(url):
             if collections and col['handle'] not in collections:
@@ -134,7 +152,7 @@ def extract_products(url, path, collections=None):
                                  product['title'], product['option_value'],
                                  product['price'],
                                  product['stock'], product['product_url'],
-                                 product['image_src']])
+                                 product['image_src'], product['body']])
 
 
 if __name__ == '__main__':
@@ -152,5 +170,7 @@ if __name__ == '__main__':
             for col in get_page_collections(url):
                 print(col['handle'])
         else:
-            print(options.collections)
-            extract_products(url, 'products.csv', options.collections.split(','))
+            collections = []
+            if options.collections:
+                collections = options.collections.split(',')
+            extract_products(url, 'products.csv', collections)

@@ -122,7 +122,7 @@ def extract_products_collection(url, col):
                        'variant_id': product_handle + str(variant['id']),
                        'product_url': product_url, 'image_src': image_src}
                 for k in row:
-                    row[k] = str(row[k].strip())
+                    row[k] = str(row[k].strip()) if row[k] else ''
                 yield row
 
         page += 1

@@ -4,7 +4,7 @@ import json
 import time
 import urllib.request
 from urllib.error import HTTPError
-from optparse import OptionParser
+import argparse
 
 
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
@@ -156,21 +156,19 @@ def extract_products(url, path, collections=None):
 
 
 if __name__ == '__main__':
-    parser = OptionParser()
-    parser.add_option("--list-collections", dest="list_collections",
-                      action="store_true",
-                      help="List collections in the site")
-    parser.add_option("--collections", "-c", dest="collections",
-                      default="",
-                      help="Download products only from the given collections (comma separated)")
-    (options, args) = parser.parse_args()
-    if len(args) > 0:
-        url = fix_url(args[0])
-        if options.list_collections:
-            for col in get_page_collections(url):
-                print(col['handle'])
-        else:
-            collections = []
-            if options.collections:
-                collections = options.collections.split(',')
-            extract_products(url, 'products.csv', collections)
+    parser = argparse.ArgumentParser(description='Simple scraper to extract all products from shopify sites')
+    parser.add_argument('--list-collections', '-l', dest='list_collections', action='store_true', 
+                        help='List collections in the site')
+    parser.add_argument('--collections', '-c', dest='collections', default='',
+                        help='Download products only from the given collections (comma separated)')
+    parser.add_argument('url', metavar='URL', help='URL of the shopify site')
+    args = parser.parse_args()
+    url = fix_url(args.url)
+    if args.list_collections:
+        for col in get_page_collections(url):
+            print(col['handle'])
+    else:
+        collections = []
+        if args.collections:
+            collections = args.collections.split(',')
+        extract_products(url, 'products.csv', collections)

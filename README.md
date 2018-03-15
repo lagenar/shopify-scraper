@@ -1,20 +1,34 @@
 # shopify-scraper
+
 Simple scraper to extract all products from shopify sites
 
+## Requirements
 
-Requirements:
 Python 3
 
-Usage:
-python3 shopify.py [site's url]
+## Usage
 
-Listing collections:
-python3 shopify.py --list-collections [site's url]
+### Saving result as csv
 
-Scraping products only in given collections:
-python3 shopify.py -c col1,col2,col3 [site's url]
+```bash
+python3 shopify.py [site's url] > products.csv
+```
 
-Example:
-python3 shopify.py -c vip,babs-and-bab-lows https://www.greats.com
+### Saving result as json 
 
-The products get saved into a file named products.csv in the current directory.
+```bash
+python3 shopify.py --output-format json [site's url] > products.json
+```
+
+### Listing collections:
+
+```bash
+python3 shopify.py --list-collections [site's url] > products.csv
+```
+
+### Scraping products only in given collections
+
+```bash
+python3 shopify.py -c col1,col2,col3 [site's url] > products.csv
+python3 shopify.py -c vip,babs-and-bab-lows https://www.greats.com > products.csv
+```

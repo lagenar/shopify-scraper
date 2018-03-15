@@ -171,7 +171,7 @@ def print_as_csv(url, collections):
 def print_as_json(url, collections):
     products = []
     for product in extract_products(url, collections):
-        products += product
+        products.append(product)
     json.dump(products, sys.stdout, indent=4)
 
 

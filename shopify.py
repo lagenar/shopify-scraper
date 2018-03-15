@@ -169,8 +169,10 @@ def print_as_csv(url, collections):
 
 
 def print_as_json(url, collections):
+    products = []
     for product in extract_products(url, collections):
-        json.dump(product, sys.stdout, indent=4)
+        products += product
+    json.dump(products, sys.stdout, indent=4)
 
 
 def main():
@@ -180,7 +182,7 @@ def main():
                         help='List collections in the site')
     parser.add_argument('--collections', '-c', dest='collections', default='',
                         help='Get products only from the given collections (comma separated)')
-    parser.add_argument('--format', '-f', dest='format', default='csv',
+    parser.add_argument('--output-format', '-of', dest='output_format', default='csv', choices=['csv', 'json'],
                         help='Get output in either csv(default) or json')
     parser.add_argument('url', metavar='URL', help='URL of the shopify site')
     args = parser.parse_args()
@@ -192,9 +194,9 @@ def main():
         collections = []
         if args.collections:
             collections = args.collections.split(',')
-        if args.format == 'csv':
+        if args.output_format == 'csv':
             print_as_csv(url, collections)
-        elif args.format == 'json':
+        elif args.output_format == 'json':
             print_as_json(url, collections)
 
 

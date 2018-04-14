@@ -27,9 +27,9 @@ def get_page(url, page, collection_handle=None):
             data = urllib.request.urlopen(req).read()
             break
         except HTTPError:
-            print('Blocked! Sleeping...')
+            sys.stderr.write('Blocked! Sleeping...')
             time.sleep(180)
-            print('Retrying')
+            sys.stderr.write('Retrying')
 
     products = json.loads(data.decode())['products']
     return products
@@ -51,9 +51,9 @@ def get_page_collections(url):
                 data = urllib.request.urlopen(req).read()
                 break
             except HTTPError:
-                print('Blocked! Sleeping...')
+                sys.stderr.write('Blocked! Sleeping...')
                 time.sleep(180)
-                print('Retrying')
+                sys.stderr.write('Retrying')
 
         cols = json.loads(data.decode())['collections']
         if not cols:

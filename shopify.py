@@ -150,7 +150,7 @@ def extract_products(url, collections=None):
                 'in_stock': product['stock'],
                 'url': product['product_url'],
                 'image_url': product['image_src'],
-                'image_thumbnail_url': product['image_src'].replace('.jpg', '_110x110@2x.jpg'),
+                'image_thumbnail_url': product['image_src'].replace('.jpg', '_large.jpg').replace('.png', '_large.png'),
                 'body': product['body']
             }
 

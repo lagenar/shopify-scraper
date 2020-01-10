@@ -130,7 +130,7 @@ def extract_products_collection(url, col):
 
 
 def extract_products(url, path, collections=None):
-    with open(path, 'w', encoding="utf-8") as f:
+    with open(path, 'w', encoding='utf-8', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['Code', 'Collection', 'Category',
                          'Name', 'Variant Name',

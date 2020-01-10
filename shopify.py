@@ -16,7 +16,7 @@ def get_page(url, page, collection_handle=None):
         full_url += '/collections/{}'.format(collection_handle)
     full_url += '/products.json'
     req = urllib.request.Request(
-        full_url + '?page={}'.format(page),
+        full_url + '?limit=250&page={}'.format(page),
         data=None,
         headers={
             'User-Agent': USER_AGENT
@@ -130,7 +130,7 @@ def extract_products_collection(url, col):
 
 
 def extract_products(url, path, collections=None):
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding='utf-8', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['Code', 'Collection', 'Category',
                          'Name', 'Variant Name',

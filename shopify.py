@@ -16,7 +16,7 @@ def get_page(url, page, collection_handle=None):
         full_url += '/collections/{}'.format(collection_handle)
     full_url += '/products.json'
     req = urllib.request.Request(
-        full_url + '?page={}'.format(page),
+        full_url + '?limit=250&page={}'.format(page),
         data=None,
         headers={
             'User-Agent': USER_AGENT
